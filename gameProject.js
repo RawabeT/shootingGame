@@ -37,8 +37,7 @@ function update() {
         }
     }
 
-    drawblock1()
-    drawblock2()
+    drawblock()
     drawPlyer()
     score()
     shooting()
@@ -55,29 +54,19 @@ function score() {
 let blocks = [];
 let block = {
     total: 2,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
+    x: 50 + Math.random() * 100,
+    y: 50 + Math.random() * 100,
     h: 50,
     w: 100
 }
 
-function drawblock1() {
+function drawblock() {
     blocks.push(context.fillStyle = 'red',
         context.fillRect(block.x, block.y, block.w, block.y))
 
-}
-
-function drawblock2() {
     blocks.push(context.fillStyle = 'red',
-        context.fillRect(block.x + 200 , block.y +100 , block.w, block.y))
-
+        context.fillRect(block.x + 200, block.y + 100, block.w, block.y))
 }
-
-// function addBlock() {
-//     for (let index = 0; index < blocks.length; index++) {
-
-//     }
-// }
 
 let shot = 10
 let shots = []
