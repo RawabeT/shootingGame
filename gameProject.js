@@ -106,23 +106,18 @@ function drawEnemies() { // draw enemies
         for (let index = 0; index < enemies.length; index++) {
             context.fillStyle = 'orange'
             context.fillRect(enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
-            console.log("enm")
         }
     }
 
     for (let index = 0; index < 5; index++) {
-        enemies.push([enemy.x, enemy.y, enemy.h, enemy.w])
+        enemies.push([enemy.x, enemy.y, enemy.h, enemy.w, enemy.speed])
         enemy.x += 100
     }
 }
 
 function enemiesMove() {
     for (let index = 0; index < enemies.length; index++) {
-        if (enemies[index][1] > 11) {
-            enemies[index][1] += 10;
-        } else if (enemies[index][1] < 10) {
-            enemies.splice(index, 1); // if shooting end first round remove
-        }
+        enemies[index][1] += 2;
     }
 }
 
