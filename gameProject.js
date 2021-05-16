@@ -21,7 +21,7 @@ function drawPlyer() {
     context.fillRect(player.x, player.y, player.w, player.h);
 
     for (let i = 0; i < enemies.length; i++) {
-        if ((player.x > enemies[i].x + enemies[i].w || player.x + player.w < enemies[i].x || player.y > enemies[i].y + enemies[i].h || player.y + player.h < enemies[i].y)){
+        if ((player.x > enemies[i].x + enemies[i].w || player.x + player.w < enemies[i].x || player.y > enemies[i].y + enemies[i].h || player.y + player.h < enemies[i].y)) {
             loss = true;
         }
     }
@@ -62,6 +62,10 @@ function scoreDisplay() {
     context.fillStyle = 'blue';
     context.font = '20px Verdana';
     context.fillText("Score : " + score, 20, 20);
+
+    if (score > 49) {
+        enemies.splice(0,enemies.length) // stop enemies generate when score is 50
+    }
 }
 
 let blocks = [];
@@ -141,14 +145,13 @@ function killEnemy() {
                 enemies.push([(Math.random() * 500) + 50, -45, enemy.w, enemy.h, enemy.speed]);
             }
         }
+
         if (remove == true) {
             shots.splice(i, 1);
             remove = false;
             score += 1
         }
-        if (score > 50) {
 
-        }
     }
 
 }
