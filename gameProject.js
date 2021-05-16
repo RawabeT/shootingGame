@@ -4,6 +4,7 @@ let context = canvas.getContext("2d");
 let rightPress = false;
 let leftPress = false;
 let enterPress = false;
+let loss = false
 let score = 0;
 
 let player = {
@@ -18,6 +19,13 @@ let player = {
 function drawPlyer() {
     context.fillStyle = 'blue';
     context.fillRect(player.x, player.y, player.w, player.h);
+
+    for (let i = 0; i < enemies.length; i++) {
+        if ((player.x > enemies[i].x + enemies[i].w || player.x + player.w < enemies[i].x || player.y > enemies[i].y + enemies[i].h || player.y + player.h < enemies[i].y)){
+            loss = true;
+        }
+    }
+
 }
 
 
@@ -37,10 +45,12 @@ function update() {
         }
     }
 
+    killEnemy()
     enemiesMove()
     drawblock()
     drawPlyer()
     scoreDisplay()
+    bigHero()
     shooting()
     drawShots()
     drawEnemies()
@@ -58,9 +68,9 @@ let blocks = [];
 let block = {
     total: 2,
     x: 50 + Math.random() * 250,
-    y: 50 + Math.random() * 300,
-    w: 100,
-    h: 50
+    y: 50 + Math.random() * 300
+    // w: 100,
+    // h: 50
 }
 
 function drawblock() {
@@ -117,10 +127,35 @@ function drawEnemies() { // draw enemies
 
 function enemiesMove() {
     for (let index = 0; index < enemies.length; index++) {
-        enemies[index][1] += 2;
+        enemies[index][1] += enemy.speed;
     }
 }
 
+function killEnemy() {
+    let remove = false;
+    for (let i = 0; i < shots.length; i++) {
+        for (let j = 0; j < enemies.length; j++) {
+            if (shots[i][1] <= (enemies[j][1] + enemies[j][3]) && shots[i][0] >= enemies[j][0] && shots[i][0] <= (enemies[j][0] + enemies[j][2])) {
+                remove = true;
+                enemies.splice(j, 1);
+                enemies.push([(Math.random() * 500) + 50, -45, enemy.w, enemy.h, enemy.speed]);
+            }
+        }
+        if (remove == true) {
+            shots.splice(i, 1);
+            remove = false;
+            score += 1
+        }
+        if (score > 50) {
+
+        }
+    }
+
+}
+
+function bigHero() {
+
+}
 
 document.addEventListener('keydown', (e) => {
 
