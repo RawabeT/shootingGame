@@ -7,7 +7,7 @@ let enterPress = false
 let loss = false
 let alive = true
 let score = 0
-let lives = 4
+let lives = 3
 let collisionB = true
 
 let player = {
@@ -59,7 +59,7 @@ function update() {
         }
     }
 
-    if (score > 49) {
+    if (score > 4) {
         enemies.splice(0, enemies.length) // stop enemies generate when score is 50
         bigEnemy()
     }
@@ -81,14 +81,13 @@ function update() {
 function scoreDisplay() {
     context.fillStyle = 'white';
     context.font = '20px Verdana';
-    context.fillText("Score : " + score, 20, 20);
-    //context.fillText("Lives : " + lives, 20, 45);
+    context.fillText("Score : " + score, canvas.width - 580, 20);
+    context.fillText("Lives : " + lives, canvas.width - 100, 20);
 
-    if (alive == false) { // if player touch enemy game over
+    if (!alive) { // if player touch enemy game over
         context.clearRect(0, 0, canvas.width, canvas.height);
         enemies.splice(0, enemies.length)
-        context.fillText("Score : " + score, 20, 20);
-        //context.fillText(`Lives: ${ lives}`, 20, 45);
+        context.fillText("Your Score : " + score, canvas.width - 350, canvas.height - 200);
         context.fillText('Game Over!', canvas.width - 350, canvas.height / 2);
     }
 }
@@ -97,9 +96,9 @@ let blocks = [];
 let block = {
     total: 2,
     x: 50 + Math.random() * 250,
-    y: 50 + Math.random() * 300
-    // w: 100,
-    // h: 50
+    y: 50 + Math.random() * 300,
+    w: 100,
+    h: 50
 }
 
 function drawblock() {
@@ -107,19 +106,14 @@ function drawblock() {
     blockImg.src = 'img/wall.png';
 
     blocks.push(
-        context.drawImage(blockImg, block.x, block.y, 100, 50))
+        context.drawImage(blockImg, block.x, block.y, block.w, block.h))
 
 
     blocks.push(
-        context.drawImage(blockImg, block.x + 200, block.y - 30, 100, 50))
+        context.drawImage(blockImg, block.x + 200, block.y - 30, block.w, block.h))
 
     blocks.push(
-        context.drawImage(blockImg, block.x - 200, block.y - 30, 100, 50))
-
-    // for (let i = 0; i < enemies.length; i++) {
-    //     if (!collisionB)
-    //         enemies[i].splice(i, 1);
-    // }
+        context.drawImage(blockImg, block.x - 200, block.y - 30, block.w, block.h))
 }
 
 let shot = 10
@@ -128,7 +122,6 @@ function drawShots() { // draw shots
     if (shots.length) {
         for (let index = 0; index < shots.length; index++) {
             context.fillStyle = 'rgb(112, 112, 216)'
-            //context.fillRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3]);
             roundRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3], shots[index][4]);
         }
     }
@@ -159,10 +152,7 @@ function drawEnemies() { // draw enemies
 
     if (enemies.length) {
         for (let index = 0; index < enemies.length; index++) {
-            // context.fillStyle = 'orange'
-            // context.fillRect(enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
             context.drawImage(enemyImg, enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
-
         }
     }
 
@@ -235,16 +225,16 @@ function collision() {
 
     for (let i = 0; i < enemies.length; i++) {
         if (player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
-            alive = false;
+            Lives()
         }
         if (playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0] && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
-            alive = false;
+            Lives()
         }
         if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w) {
-            alive = false;
+            Lives()
         }
         if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0]) {
-            alive = false;
+            Lives()
         }
     }
 }
@@ -271,6 +261,20 @@ function collisionBlock() { //block & enmy
     }
 }
 
+function Lives() {
+    lives -= 1;
+    if (lives > 0) {
+        let enemy_reset_x = 50;
+        player.x = (canvas.width / 2) - 25, player.y = canvas.height - 75, player.w = 50, player.h = 57;
+        for (let i = 0; i < enemies.length; i++) {
+            enemies[i][0] = enemy_reset_x;
+            enemies[i][1] = -45;
+            enemy_reset_x += 100
+        }
+    } else if (lives == 0) {
+        alive = false;
+    }
+}
 
 document.addEventListener('keydown', (e) => {
 
