@@ -1,13 +1,14 @@
-let canvas = document.querySelector("#canvas");
-let context = canvas.getContext("2d");
+let canvas = document.querySelector("#canvas")
+let context = canvas.getContext("2d")
 
-let rightPress = false;
-let leftPress = false;
-let enterPress = false;
+let rightPress = false
+let leftPress = false
+let enterPress = false
 let loss = false
 let alive = true
-let score = 0;
-let collisionB = true;
+let score = 0
+let lives = 4
+let collisionB = true
 
 let player = {
     x: 250, // position
@@ -19,31 +20,28 @@ let player = {
 };
 
 function drawPlyer() {
-    context.fillStyle = 'blue';
-    context.fillRect(player.x, player.y, player.w, player.h);
-
+    roundRect(player.x, player.y, player.w, player.h, 20, 'white');
 }
-// function playerTouch() {
-//     for (let i = 0; i < enemies.length; i++) {
-//         if (player && collision(player, enemies[i])) {
-//             loss = true;
-//             alert("You lossssss :(")
-//         }
-//     }
-// }
 
-// function collision(element1,element2) {
-//     if (
-//       (
-//         element1.x > element2.x + element2.width &&
-//         element1.x + element1.width < element2.x &&
-//         element1.y > element2.y + element2.height &&
-//         element1.y + element1.height < element2.y
-//       )
-//     ) {
-//       return true
-//     }
-//   }
+function roundRect(x, y, w, h, radius, color) // draw rounded rectangle
+{
+    let r = x + w;
+    let b = y + h;
+    context.beginPath();
+    context.fillStyle = color;
+    context.lineWidth = "4";
+    context.moveTo(x + radius, y);
+    context.lineTo(r - radius, y);
+    context.quadraticCurveTo(r, y, r, y + radius);
+    context.lineTo(r, y + h - radius);
+    context.quadraticCurveTo(r, b, r - radius, b);
+    context.lineTo(x + radius, b);
+    context.quadraticCurveTo(x, b, x, b - radius);
+    context.lineTo(x, y + radius);
+    context.quadraticCurveTo(x, y, x + radius, y);
+    context.fill();
+}
+
 
 function update() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -61,16 +59,18 @@ function update() {
         }
     }
 
+    if (score > 49) {
+        enemies.splice(0, enemies.length) // stop enemies generate when score is 50
+        bigEnemy()
+    }
 
     killEnemy()
-    //playerTouch()
     collision()
     enemiesMove()
-    collisionBlock()
+    //collisionBlock()
     drawblock()
     drawPlyer()
     scoreDisplay()
-    bigHero()
     shooting()
     drawShots()
     drawEnemies()
@@ -79,17 +79,16 @@ function update() {
 
 
 function scoreDisplay() {
-    context.fillStyle = 'blue';
+    context.fillStyle = 'white';
     context.font = '20px Verdana';
     context.fillText("Score : " + score, 20, 20);
-
-    if (score > 49) {
-        enemies.splice(0, enemies.length) // stop enemies generate when score is 50
-    }
+    //context.fillText("Lives : " + lives, 20, 45);
 
     if (alive == false) { // if player touch enemy game over
         context.clearRect(0, 0, canvas.width, canvas.height);
         enemies.splice(0, enemies.length)
+        context.fillText("Score : " + score, 20, 20);
+        //context.fillText(`Lives: ${ lives}`, 20, 45);
         context.fillText('Game Over!', canvas.width - 350, canvas.height / 2);
     }
 }
@@ -104,16 +103,23 @@ let block = {
 }
 
 function drawblock() {
-    blocks.push(context.fillStyle = 'red',
-        context.fillRect(block.x, block.y, 100, 50))
+    let blockImg = new Image();
+    blockImg.src = 'img/wall.png';
 
-    blocks.push(context.fillStyle = 'red',
-        context.fillRect(block.x + 200, block.y - 30, 100, 50))
+    blocks.push(
+        context.drawImage(blockImg, block.x, block.y, 100, 50))
 
-    for (let i = 0; i < enemies.length; i++) {
-        if (!collisionB)
-            enemies[i].splice(i,1);
-    }
+
+    blocks.push(
+        context.drawImage(blockImg, block.x + 200, block.y - 30, 100, 50))
+
+    blocks.push(
+        context.drawImage(blockImg, block.x - 200, block.y - 30, 100, 50))
+
+    // for (let i = 0; i < enemies.length; i++) {
+    //     if (!collisionB)
+    //         enemies[i].splice(i, 1);
+    // }
 }
 
 let shot = 10
@@ -121,8 +127,9 @@ let shots = []
 function drawShots() { // draw shots
     if (shots.length) {
         for (let index = 0; index < shots.length; index++) {
-            context.fillStyle = 'green'
-            context.fillRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3]);
+            context.fillStyle = 'rgb(112, 112, 216)'
+            //context.fillRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3]);
+            roundRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3], shots[index][4]);
         }
     }
 }
@@ -147,10 +154,15 @@ let enemy = {
 }
 
 function drawEnemies() { // draw enemies
+    let enemyImg = new Image();
+    enemyImg.src = 'img/enmy.png';
+
     if (enemies.length) {
         for (let index = 0; index < enemies.length; index++) {
-            context.fillStyle = 'orange'
-            context.fillRect(enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
+            // context.fillStyle = 'orange'
+            // context.fillRect(enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
+            context.drawImage(enemyImg, enemies[index][0], enemies[index][1], enemies[index][2], enemies[index][3]);
+
         }
     }
 
@@ -189,7 +201,30 @@ function killEnemy() {
     }
 }
 
-function bigHero() {
+let bigEnm = {
+    x: 100,
+    y: 100,
+    h: 100,
+    w: 100,
+    dx: 2,
+    dy: 2
+}
+
+function bigEnemy() {
+    let bigEnemyImg = new Image();
+    bigEnemyImg.src = 'img/theDevil.png';
+
+    context.drawImage(bigEnemyImg, bigEnm.x, bigEnm.y, bigEnm.h, bigEnm.w);
+
+    if (bigEnm.x + bigEnm.dx > canvas.width - 100 || bigEnm.x + bigEnm.dx < 20) {
+        bigEnm.dx = - bigEnm.dx;
+    }
+    if (bigEnm.y + bigEnm.dy > canvas.height - 300 || bigEnm.y + bigEnm.dy < 20) {
+        bigEnm.dy = -bigEnm.dy;
+    }
+
+    bigEnm.x += bigEnm.dx;
+    bigEnm.y += bigEnm.dy;
 
 }
 
@@ -213,6 +248,7 @@ function collision() {
         }
     }
 }
+
 
 function collisionBlock() { //block & enmy
 
@@ -251,7 +287,7 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === "Enter" && shots.length <= shot) {
         enterPress = true
         if (enterPress && shots.length <= shot) {
-            shots.push([player.x + 25, player.y - 20, 4, 20]); // shooting start
+            shots.push([player.x + 25, player.y - 20, 4, 20, 20]); // shooting start
         }
     }
 })
