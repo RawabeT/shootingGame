@@ -8,7 +8,6 @@ let loss = false
 let alive = true
 let score = 0
 let lives = 3
-let collisionB = true
 
 let player = {
     x: 250, // position
@@ -59,15 +58,17 @@ function update() {
         }
     }
 
-    if (score > 4) {
+    if (score > 49) {
         enemies.splice(0, enemies.length) // stop enemies generate when score is 50
         bigEnemy()
+        bigEnemyShooting()
     }
 
+    killBigEnemy()
     killEnemy()
-    collision()
+    collision(player, enemy, ...enemies)
+    collision(block, enemy, ...enemies)
     enemiesMove()
-    //collisionBlock()
     drawblock()
     drawPlyer()
     scoreDisplay()
@@ -90,6 +91,11 @@ function scoreDisplay() {
         context.fillText("Your Score : " + score, canvas.width - 350, canvas.height - 200);
         context.fillText('Game Over!', canvas.width - 350, canvas.height / 2);
     }
+    if (score > 70) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillText("Your Score : " + score, canvas.width - 350, canvas.height - 200);
+        context.fillText('You win ^^', canvas.width - 350, canvas.height / 2);
+    }
 }
 
 let blocks = [];
@@ -108,7 +114,6 @@ function drawblock() {
     blocks.push(
         context.drawImage(blockImg, block.x, block.y, block.w, block.h))
 
-
     blocks.push(
         context.drawImage(blockImg, block.x + 200, block.y - 30, block.w, block.h))
 
@@ -116,12 +121,13 @@ function drawblock() {
         context.drawImage(blockImg, block.x - 200, block.y - 30, block.w, block.h))
 }
 
+
 let shot = 10
 let shots = []
 function drawShots() { // draw shots
     if (shots.length) {
         for (let index = 0; index < shots.length; index++) {
-            context.fillStyle = 'rgb(112, 112, 216)'
+            context.fillStyle = 'peru'
             roundRect(shots[index][0], shots[index][1], shots[index][2], shots[index][3], shots[index][4]);
         }
     }
@@ -191,6 +197,22 @@ function killEnemy() {
     }
 }
 
+function killBigEnemy() {
+    let hit = false;
+    for (let i = 0; i < shots.length; i++) {
+        if (shots[i][1] <= (bigEnm.y + bigEnm.h) && shots[i][0] >= bigEnm.x && shots[i][0] <= (bigEnm.x + bigEnm.w)) {
+            hit = true;
+            //enemies.push([(Math.random() * 500) + 50, -45, enemy.w, enemy.h, enemy.speed]);
+        }
+        if (hit == true) {
+            shots.splice(i, 1);
+            hit = false;
+            score += 1
+        }
+    }
+}
+
+
 let bigEnm = {
     x: 100,
     y: 100,
@@ -199,6 +221,7 @@ let bigEnm = {
     dx: 2,
     dy: 2
 }
+
 
 function bigEnemy() {
     let bigEnemyImg = new Image();
@@ -218,48 +241,52 @@ function bigEnemy() {
 
 }
 
-function collision() {
 
-    let playerXW = player.x + player.w,
-        playerYH = player.y + player.h;
+let bigEnmShots = []
 
-    for (let i = 0; i < enemies.length; i++) {
-        if (player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
+function bigEnemyShooting() {
+
+    if (bigEnmShots.length) { // draw big enemy shots
+        for (let index = 0; index < bigEnmShots.length; index++) {
+            context.fillStyle = 'red';
+            context.fillRect(bigEnmShots[index][0], bigEnmShots[index][1], bigEnmShots[index][2], bigEnmShots[index][3]);
+        }
+    }
+
+    for (let i = 0; i < 5; i++) {
+        bigEnmShots.push([bigEnm.x, bigEnm.y, 4, 20]); // shooting start 
+    }
+
+    for (let j = 0; j < bigEnmShots.length; j++) {
+        if (bigEnmShots[j][1] > 11) {
+            bigEnmShots[j][1] += 50;
+        } else if (bigEnmShots[j][1] < 10) {
+            bigEnmShots.splice(j, 1); // if shooting end first round remove
+        }
+    }
+}
+
+function collision(object1, object2, ...array) {
+
+    let object1XW = object1.x + object1.w,
+        object1YH = object1.y + object1.h;
+
+    for (let i = 0; i < array.length; i++) {
+        if (object1.x > array[i][0] && object1.x < array[i][0] + object2.w && object1.y > array[i][1] && object1.y < array[i][1] + object2.y) {
             Lives()
         }
-        if (playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0] && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
+        if (object1XW < array[i][0] + object2.w && object1XW > array[i][0] && object1.y > array[i][1] && object1.y < array[i][1] + object2.y) {
             Lives()
         }
-        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w) {
+        if (object1YH > array[i][1] && object1YH < array[i][1] + object2.y && object1.x > array[i][0] && object1.x < array[i][0] + object2.w) {
             Lives()
         }
-        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0]) {
+        if (object1YH > array[i][1] && object1YH < array[i][1] + object2.y && object1XW < array[i][0] + object2.w && object1XW > array[i][0]) {
             Lives()
         }
     }
 }
 
-
-function collisionBlock() { //block & enmy
-
-    let blockXW = block.x + block.w,
-        blockYH = block.y + block.h;
-
-    for (let i = 0; i < enemies.length; i++) {
-        if (block.x > enemies[i][0] && block.x < enemies[i][0] + enemy.w && block.y > enemies[i][1] && block.y < enemies[i][1] + enemy.y) {
-            collisionB = false;
-        }
-        if (blockXW < enemies[i][0] + enemy.w && blockXW > enemies[i][0] && block.y > enemies[i][1] && block.y < enemies[i][1] + enemy.y) {
-            collisionB = false;
-        }
-        if (blockYH > enemies[i][1] && blockYH < enemies[i][1] + enemy.y && block.x > enemies[i][0] && block.x < enemies[i][0] + enemy.w) {
-            collisionB = false;
-        }
-        if (blockYH > enemies[i][1] && blockYH < enemies[i][1] + enemy.y && blockXW < enemies[i][0] + enemy.w && blockXW > enemies[i][0]) {
-            collisionB = false;
-        }
-    }
-}
 
 function Lives() {
     lives -= 1;
