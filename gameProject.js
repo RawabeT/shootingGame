@@ -7,6 +7,7 @@ let enterPress = false;
 let loss = false
 let alive = true
 let score = 0;
+let collisionB = true;
 
 let player = {
     x: 250, // position
@@ -65,6 +66,7 @@ function update() {
     //playerTouch()
     collision()
     enemiesMove()
+    collisionBlock()
     drawblock()
     drawPlyer()
     scoreDisplay()
@@ -87,7 +89,7 @@ function scoreDisplay() {
 
     if (alive == false) { // if player touch enemy game over
         context.clearRect(0, 0, canvas.width, canvas.height);
-        enemies.splice(0, enemies.length) 
+        enemies.splice(0, enemies.length)
         context.fillText('Game Over!', canvas.width - 350, canvas.height / 2);
     }
 }
@@ -107,6 +109,11 @@ function drawblock() {
 
     blocks.push(context.fillStyle = 'red',
         context.fillRect(block.x + 200, block.y - 30, 100, 50))
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (!collisionB)
+            enemies[i].splice(i,1);
+    }
 }
 
 let shot = 10
@@ -179,9 +186,7 @@ function killEnemy() {
             remove = false;
             score += 1
         }
-
     }
-
 }
 
 function bigHero() {
@@ -193,18 +198,39 @@ function collision() {
     let playerXW = player.x + player.w,
         playerYH = player.y + player.h;
 
-    for (var i = 0; i < enemies.length; i++) {
+    for (let i = 0; i < enemies.length; i++) {
         if (player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
             alive = false;
         }
-        if (playerXW < enemies[i][0] + enemy.w  && playerXW > enemies[i][0] && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
+        if (playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0] && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
             alive = false;
         }
-        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w ) {
+        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w) {
             alive = false;
         }
-        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && playerXW < enemies[i][0] + enemy.w  && playerXW > enemies[i][0]) {
+        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && playerXW < enemies[i][0] + enemy.w && playerXW > enemies[i][0]) {
             alive = false;
+        }
+    }
+}
+
+function collisionBlock() { //block & enmy
+
+    let blockXW = block.x + block.w,
+        blockYH = block.y + block.h;
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (block.x > enemies[i][0] && block.x < enemies[i][0] + enemy.w && block.y > enemies[i][1] && block.y < enemies[i][1] + enemy.y) {
+            collisionB = false;
+        }
+        if (blockXW < enemies[i][0] + enemy.w && blockXW > enemies[i][0] && block.y > enemies[i][1] && block.y < enemies[i][1] + enemy.y) {
+            collisionB = false;
+        }
+        if (blockYH > enemies[i][1] && blockYH < enemies[i][1] + enemy.y && block.x > enemies[i][0] && block.x < enemies[i][0] + enemy.w) {
+            collisionB = false;
+        }
+        if (blockYH > enemies[i][1] && blockYH < enemies[i][1] + enemy.y && blockXW < enemies[i][0] + enemy.w && blockXW > enemies[i][0]) {
+            collisionB = false;
         }
     }
 }
