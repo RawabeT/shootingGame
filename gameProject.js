@@ -5,6 +5,7 @@ let rightPress = false;
 let leftPress = false;
 let enterPress = false;
 let loss = false
+let alive = true
 let score = 0;
 
 let player = {
@@ -20,14 +21,28 @@ function drawPlyer() {
     context.fillStyle = 'blue';
     context.fillRect(player.x, player.y, player.w, player.h);
 
-    for (let i = 0; i < enemies.length; i++) {
-        if ((player.x > enemies[i].x + enemies[i].w || player.x + player.w < enemies[i].x || player.y > enemies[i].y + enemies[i].h || player.y + player.h < enemies[i].y)) {
-            loss = true;
-        }
-    }
-
 }
+// function playerTouch() {
+//     for (let i = 0; i < enemies.length; i++) {
+//         if (player && collision(player, enemies[i])) {
+//             loss = true;
+//             alert("You lossssss :(")
+//         }
+//     }
+// }
 
+// function collision(element1,element2) {
+//     if (
+//       (
+//         element1.x > element2.x + element2.width &&
+//         element1.x + element1.width < element2.x &&
+//         element1.y > element2.y + element2.height &&
+//         element1.y + element1.height < element2.y
+//       )
+//     ) {
+//       return true
+//     }
+//   }
 
 function update() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -45,7 +60,10 @@ function update() {
         }
     }
 
+
     killEnemy()
+    //playerTouch()
+    collision()
     enemiesMove()
     drawblock()
     drawPlyer()
@@ -64,7 +82,13 @@ function scoreDisplay() {
     context.fillText("Score : " + score, 20, 20);
 
     if (score > 49) {
-        enemies.splice(0,enemies.length) // stop enemies generate when score is 50
+        enemies.splice(0, enemies.length) // stop enemies generate when score is 50
+    }
+
+    if (alive == false) { // if player touch enemy game over
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        enemies.splice(0, enemies.length) 
+        context.fillText('Game Over!', canvas.width - 350, canvas.height / 2);
     }
 }
 
@@ -131,7 +155,11 @@ function drawEnemies() { // draw enemies
 
 function enemiesMove() {
     for (let index = 0; index < enemies.length; index++) {
-        enemies[index][1] += enemy.speed;
+        if (enemies[index][1] < 600) {
+            enemies[index][1] += enemy.speed;
+        } else if (enemies[index][1] > 600 - 1) {
+            enemies[index][1] = -45;
+        }
     }
 }
 
@@ -159,6 +187,28 @@ function killEnemy() {
 function bigHero() {
 
 }
+
+function collision() {
+
+    let playerXW = player.x + player.w,
+        playerYH = player.y + player.h;
+
+    for (var i = 0; i < enemies.length; i++) {
+        if (player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
+            alive = false;
+        }
+        if (playerXW < enemies[i][0] + enemy.w  && playerXW > enemies[i][0] && player.y > enemies[i][1] && player.y < enemies[i][1] + enemy.y) {
+            alive = false;
+        }
+        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && player.x > enemies[i][0] && player.x < enemies[i][0] + enemy.w ) {
+            alive = false;
+        }
+        if (playerYH > enemies[i][1] && playerYH < enemies[i][1] + enemy.y && playerXW < enemies[i][0] + enemy.w  && playerXW > enemies[i][0]) {
+            alive = false;
+        }
+    }
+}
+
 
 document.addEventListener('keydown', (e) => {
 
