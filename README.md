@@ -1,5 +1,4 @@
-# Shooting Game
-
+# Shooting Game 🎃
 ---
 
 A simple 2D shooting game created in JavaScript.
